@@ -1,0 +1,8 @@
+name: "node(quality assurance): Format"
+description: Run the project's format script
+runs:
+  using: composite
+  steps:
+    - name: Run format check
+      run: npm run format
+      shell: bash

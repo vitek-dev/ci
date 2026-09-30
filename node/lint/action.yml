@@ -1,0 +1,8 @@
+name: "node(quality assurance): Lint"
+description: Run the project's lint script
+runs:
+  using: composite
+  steps:
+    - name: Run lint
+      run: npm run lint
+      shell: bash
