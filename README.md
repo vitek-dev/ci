@@ -59,7 +59,7 @@ jobs:
 
 | Action | What it does |
 |---|---|
-| `vitek-dev/ci/docker/build-push` | Builds an image with Buildx and pushes it to `ghcr.io/<image>:<tag>` |
+| `vitek-dev/ci/docker/ghcr-build-push` | Builds an image with Buildx and pushes it to `ghcr.io/<image>:<tag>` |
 
 | Input | Default | |
 |---|---|---|
@@ -80,7 +80,7 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v7
-      - uses: vitek-dev/ci/docker/build-push@v1
+      - uses: vitek-dev/ci/docker/ghcr-build-push@v1
         with:
           image: ${{ github.repository }}-ardea-nuxt
           context: projects/ardea-nuxt
