@@ -1,8 +1,14 @@
 name: "node(quality assurance): Format"
 description: Run the project's format script
+inputs:
+  working-directory:
+    description: Directory to run the format script in. Defaults to the repository root; set it for a project in a monorepo subdirectory.
+    required: false
+    default: "."
 runs:
   using: composite
   steps:
     - name: Run format check
       run: npm run format
       shell: bash
+      working-directory: ${{ inputs.working-directory }}

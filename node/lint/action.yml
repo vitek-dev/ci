@@ -1,8 +1,14 @@
 name: "node(quality assurance): Lint"
 description: Run the project's lint script
+inputs:
+  working-directory:
+    description: Directory to run the lint script in. Defaults to the repository root; set it for a project in a monorepo subdirectory.
+    required: false
+    default: "."
 runs:
   using: composite
   steps:
     - name: Run lint
       run: npm run lint
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
