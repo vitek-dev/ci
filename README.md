@@ -59,20 +59,24 @@ jobs:
 
 | Action | What it does |
 |---|---|
-| `vitek-dev/ci/docker/login` | Logs in to `ghcr.io` as `github.actor` using the workflow's `GITHUB_TOKEN` |
+| `vitek-dev/ci/docker/build-push` | Logs in to `ghcr.io`, builds `./Dockerfile` and pushes it as `ghcr.io/<image>:latest` |
 
-The calling job needs `packages: write` permission to push images (or
-`packages: read` to only pull).
+`image` defaults to the repository name (`github.repository`) and is lowercased,
+as registries require. The caller checks out the code, and the job needs
+`packages: write` permission.
 
 ```yaml
 jobs:
-  image:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
-      - uses: vitek-dev/ci/docker/login@v1
+      - uses: actions/checkout@v7
+      - uses: vitek-dev/ci/docker/build-push@v1
+        with:
+          image: vitek-dev/app
 ```
 
 ## Versioning
