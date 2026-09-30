@@ -59,11 +59,16 @@ jobs:
 
 | Action | What it does |
 |---|---|
-| `vitek-dev/ci/docker/build-push` | Logs in to `ghcr.io`, builds `./Dockerfile` and pushes it as `ghcr.io/<image>:latest` |
+| `vitek-dev/ci/docker/build-push` | Builds an image with Buildx and pushes it to `ghcr.io/<image>:latest` |
 
-`image` defaults to the repository name (`github.repository`) and is lowercased,
-as registries require. The caller checks out the code, and the job needs
-`packages: write` permission.
+| Input | Default | |
+|---|---|---|
+| `image` | `github.repository` | Image name under `ghcr.io`; lowercased, as registries require |
+| `context` | `.` | Build context directory |
+| `file` | `<context>/Dockerfile` | Path to the Dockerfile |
+
+The caller checks out the code, and the job needs `packages: write` permission.
+Logging in uses the workflow's `GITHUB_TOKEN` as `github.actor`.
 
 ```yaml
 jobs:
@@ -76,7 +81,8 @@ jobs:
       - uses: actions/checkout@v7
       - uses: vitek-dev/ci/docker/build-push@v1
         with:
-          image: vitek-dev/app
+          image: ${{ github.repository }}-ardea-nuxt
+          context: projects/ardea-nuxt
 ```
 
 ## Versioning

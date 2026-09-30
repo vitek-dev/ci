@@ -1,13 +1,31 @@
 name: "docker(build): Build & Push image"
-description: Build the Dockerfile in the repository root and push it to ghcr.io as <image>:latest
+description: Build a Docker image with Buildx and push it to ghcr.io as <image>:latest
 inputs:
   image:
     description: Image name under ghcr.io, e.g. vitek-dev/app. Defaults to the repository name.
     required: false
     default: ${{ github.repository }}
+  context:
+    description: Build context directory. Defaults to the repository root; set it for a project in a monorepo subdirectory.
+    required: false
+    default: "."
+  file:
+    description: Path to the Dockerfile. Defaults to <context>/Dockerfile.
+    required: false
+    default: ""
 runs:
   using: composite
   steps:
+    - name: Resolve image tag
+      id: tag
+      run: echo "tag=ghcr.io/${IMAGE,,}:latest" >> "$GITHUB_OUTPUT"
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
     - name: Log in to the Container registry
       uses: docker/login-action@v4
       with:
@@ -15,14 +33,10 @@ runs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
 
-    - name: Build image
-      run: docker build --file ./Dockerfile --tag "ghcr.io/${IMAGE,,}:latest" .
-      shell: bash
-      env:
-        IMAGE: ${{ inputs.image }}
-
-    - name: Push image to Registry
-      run: docker push "ghcr.io/${IMAGE,,}:latest"
-      shell: bash
-      env:
-        IMAGE: ${{ inputs.image }}
+    - name: Build and push image
+      uses: docker/build-push-action@v7
+      with:
+        context: ${{ inputs.context }}
+        file: ${{ inputs.file }}
+        push: true
+        tags: ${{ steps.tag.outputs.tag }}
