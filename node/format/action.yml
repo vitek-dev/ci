@@ -1,4 +1,4 @@
-name: Node.js format check
+name: "node(quality assurance): Format"
 description: Run the project's format script
 runs:
   using: composite

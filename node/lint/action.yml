@@ -1,4 +1,4 @@
-name: Node.js lint
+name: "node(quality assurance): Lint"
 description: Run the project's lint script
 runs:
   using: composite
