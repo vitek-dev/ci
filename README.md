@@ -59,11 +59,12 @@ jobs:
 
 | Action | What it does |
 |---|---|
-| `vitek-dev/ci/docker/build-push` | Builds an image with Buildx and pushes it to `ghcr.io/<image>:latest` |
+| `vitek-dev/ci/docker/build-push` | Builds an image with Buildx and pushes it to `ghcr.io/<image>:<tag>` |
 
 | Input | Default | |
 |---|---|---|
 | `image` | `github.repository` | Image name under `ghcr.io`; lowercased, as registries require |
+| `tag` | `latest` | Image tag |
 | `context` | `.` | Build context directory |
 | `file` | `<context>/Dockerfile` | Path to the Dockerfile |
 
