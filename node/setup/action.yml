@@ -1,8 +1,11 @@
 name: Node.js setup
-description: Set up Node.js from package.json and install dependencies with npm ci
+description: Check out the repository, set up Node.js from package.json and install dependencies with npm ci
 runs:
   using: composite
   steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
     - name: Setup Node.js
       uses: actions/setup-node@v7
       with:
