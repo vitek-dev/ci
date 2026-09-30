@@ -55,6 +55,26 @@ jobs:
           working-directory: projects/app
 ```
 
+## Docker
+
+| Action | What it does |
+|---|---|
+| `vitek-dev/ci/docker/login` | Logs in to `ghcr.io` as `github.actor` using the workflow's `GITHUB_TOKEN` |
+
+The calling job needs `packages: write` permission to push images (or
+`packages: read` to only pull).
+
+```yaml
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: vitek-dev/ci/docker/login@v1
+```
+
 ## Versioning
 
 Pin to the major tag `@v1`; it moves forward with backward-compatible changes.
