@@ -90,28 +90,28 @@ jobs:
 
 | Action | What it does |
 |---|---|
-| `vitek-dev/ci/pushover/send` | Sends a push notification through the [Pushover API](https://pushover.net/api) |
+| `vitek-dev/ci/pushover/workflows/success` | Notifies that the run deployed: `🟢 <repo> deployed (<branch>)` |
+| `vitek-dev/ci/pushover/workflows/failed` | Notifies, with high priority, that the run failed: `🔴 <repo> deploy FAILED (<branch>)` |
 
-| Input | Default | |
-|---|---|---|
-| `token` | — | Application API token (required; pass a secret) |
-| `user` | — | User or group key (required; pass a secret) |
-| `message` | — | Notification body (required) |
-| `title` | `github.repository` | Notification title |
-| `url` | link to the workflow run | Link attached to the notification |
-| `url-title` | | Text shown for the link |
-| `priority` | | `-2` (lowest) to `1` (high); empty uses Pushover's default `0` |
-| `sound` | | Pushover sound name |
-| `device` | | Send to this device only |
+Each takes `api-key` (the Pushover application API token) and `user-key` (the
+user or group key); pass both from secrets. The message names the repository,
+branch and short commit SHA, and links to the workflow run.
+
+A failed notification fails the step; add `continue-on-error: true` if it
+should not fail the job.
 
 ```yaml
-      - uses: vitek-dev/ci/pushover/send@v1
-        if: failure()
+jobs:
+  notify-failure:
+    needs: [ci, build-image, deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: vitek-dev/ci/pushover/workflows/failed@v1
+        continue-on-error: true
         with:
-          token: ${{ secrets.PUSHOVER_TOKEN }}
-          user: ${{ secrets.PUSHOVER_USER }}
-          message: Nightly build failed
-          priority: 1
+          api-key: ${{ secrets.PUSHOVER_API }}
+          user-key: ${{ secrets.PUSHOVER_USER }}
 ```
 
 ## Healthchecks.io

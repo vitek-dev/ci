@@ -1,0 +1,18 @@
+name: "pushover(workflows): Success"
+description: Notify Pushover that the workflow run deployed successfully
+inputs:
+  api-key:
+    description: Pushover application API token. Pass it from a secret.
+    required: true
+  user-key:
+    description: Pushover user or group key to notify. Pass it from a secret.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Send Pushover notification
+      run: bash "$GITHUB_ACTION_PATH/../send.sh" success
+      shell: bash
+      env:
+        API_KEY: ${{ inputs.api-key }}
+        USER_KEY: ${{ inputs.user-key }}
