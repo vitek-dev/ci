@@ -119,7 +119,6 @@ jobs:
 | Action | What it does |
 |---|---|
 | `vitek-dev/ci/healthchecks/start` | Pings `<url>/start`, so Healthchecks.io measures how long the run takes |
-| `vitek-dev/ci/healthchecks/stop` | Pings success or `/fail` depending on the job status |
 | `vitek-dev/ci/healthchecks/success` | Pings `<url>` (success) |
 | `vitek-dev/ci/healthchecks/fail` | Pings `<url>/fail` |
 
@@ -128,9 +127,8 @@ Each takes `url`, the check's ping URL such as `https://hc-ping.com/<uuid>`
 workflow run link as its body, so it shows up in the check's event log. A ping
 that fails (for example an unknown check) fails the step.
 
-`stop` reports success only when the job status is `success`; `failure` and
-`cancelled` are reported as failures. It reads `job.status` unless you pass a
-`status` input. Run it with `if: always()` so it also runs after a failed step.
+Run `fail` with `if: failure()` so it reports a failed step; `success` runs
+only when every earlier step passed.
 
 ```yaml
 jobs:
@@ -141,14 +139,14 @@ jobs:
         with:
           url: ${{ secrets.HEALTHCHECK_URL }}
       - run: ./backup.sh
-      - uses: vitek-dev/ci/healthchecks/stop@v1
-        if: always()
+      - uses: vitek-dev/ci/healthchecks/success@v1
+        with:
+          url: ${{ secrets.HEALTHCHECK_URL }}
+      - uses: vitek-dev/ci/healthchecks/fail@v1
+        if: failure()
         with:
           url: ${{ secrets.HEALTHCHECK_URL }}
 ```
-
-Use `success` and `fail` instead of `stop` to report each outcome yourself,
-e.g. `fail` with `if: failure()`.
 
 ## Versioning
 
