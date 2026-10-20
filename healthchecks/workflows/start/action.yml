@@ -1,5 +1,5 @@
-name: "healthchecks(monitor): Start"
-description: Signal Healthchecks.io that the job has started, so it can measure run time
+name: "healthchecks(workflows): Start"
+description: Signal Healthchecks.io that the workflow run has started, so it can measure run time
 inputs:
   url:
     description: Ping URL of the check, e.g. https://hc-ping.com/<uuid> (or your self-hosted instance). Pass it from a secret.
@@ -8,8 +8,9 @@ runs:
   using: composite
   steps:
     - name: Ping Healthchecks.io
-      run: curl -sS --fail-with-body -m 10 --retry 5 --data-raw "$RUN_URL" "${URL%/}/start"
+      run: bash "$GITHUB_ACTION_PATH/../ping.sh" "/start"
       shell: bash
       env:
         URL: ${{ inputs.url }}
+        RUN_ID: ${{ github.run_id }}
         RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

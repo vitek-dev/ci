@@ -1,5 +1,5 @@
-name: "healthchecks(monitor): Fail"
-description: Signal Healthchecks.io that the job failed
+name: "healthchecks(workflows): Failure"
+description: Signal Healthchecks.io that the workflow run failed
 inputs:
   url:
     description: Ping URL of the check, e.g. https://hc-ping.com/<uuid> (or your self-hosted instance). Pass it from a secret.
@@ -8,8 +8,9 @@ runs:
   using: composite
   steps:
     - name: Ping Healthchecks.io
-      run: curl -sS --fail-with-body -m 10 --retry 5 --data-raw "$RUN_URL" "${URL%/}/fail"
+      run: bash "$GITHUB_ACTION_PATH/../ping.sh" "/fail"
       shell: bash
       env:
         URL: ${{ inputs.url }}
+        RUN_ID: ${{ github.run_id }}
         RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
