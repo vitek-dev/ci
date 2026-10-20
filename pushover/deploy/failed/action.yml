@@ -1,0 +1,28 @@
+name: "pushover(deploy): Failed"
+description: Notify Pushover, with high priority, that the build or deploy failed
+inputs:
+  api-key:
+    description: Pushover application API token. Pass it from a secret.
+    required: true
+  user-key:
+    description: Pushover user or group key to notify. Pass it from a secret.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Send Pushover notification
+      run: |
+        curl -sS --fail-with-body -m 10 --retry 3 \
+          --form-string "token=$API_KEY" \
+          --form-string "user=$USER_KEY" \
+          --form-string "title=🔴 $GITHUB_REPOSITORY deploy FAILED ($GITHUB_REF_NAME)" \
+          --form-string "message=Build or deploy of $GITHUB_REPOSITORY from $GITHUB_REF_NAME failed (${GITHUB_SHA::7})" \
+          --form-string "priority=1" \
+          --form-string "url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+          --form-string "url_title=View workflow run" \
+          https://api.pushover.net/1/messages.json
+        echo
+      shell: bash
+      env:
+        API_KEY: ${{ inputs.api-key }}
+        USER_KEY: ${{ inputs.user-key }}

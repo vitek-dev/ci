@@ -1,0 +1,24 @@
+name: "healthchecks(workflows): Failure"
+description: Signal Healthchecks.io that the workflow run failed
+inputs:
+  url:
+    description: Ping URL of the check, e.g. https://hc-ping.com/<uuid> (or your self-hosted instance). Pass it from a secret.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Ping Healthchecks.io
+      run: |
+        # rid pairs this run's pings; Healthchecks requires a UUID, so zero-pad the run ID into one
+        digits=$(printf '%032d' "$GITHUB_RUN_ID")
+        rid="${digits:0:8}-${digits:8:4}-${digits:12:4}-${digits:16:4}-${digits:20:12}"
+        base="${URL%%\?*}"
+        query="${URL#"$base"}"
+        query="${query#\?}"
+        curl -sS --fail-with-body -m 10 --retry 5 \
+          --data-raw "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+          "${base%/}/fail?rid=$rid${query:+&$query}"
+        echo
+      shell: bash
+      env:
+        URL: ${{ inputs.url }}
