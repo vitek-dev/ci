@@ -86,6 +86,70 @@ jobs:
           context: projects/ardea-nuxt
 ```
 
+## Pushover
+
+| Action | What it does |
+|---|---|
+| `vitek-dev/ci/pushover/send` | Sends a push notification through the [Pushover API](https://pushover.net/api) |
+
+| Input | Default | |
+|---|---|---|
+| `token` | — | Application API token (required; pass a secret) |
+| `user` | — | User or group key (required; pass a secret) |
+| `message` | — | Notification body (required) |
+| `title` | `github.repository` | Notification title |
+| `url` | link to the workflow run | Link attached to the notification |
+| `url-title` | | Text shown for the link |
+| `priority` | | `-2` (lowest) to `1` (high); empty uses Pushover's default `0` |
+| `sound` | | Pushover sound name |
+| `device` | | Send to this device only |
+
+```yaml
+      - uses: vitek-dev/ci/pushover/send@v1
+        if: failure()
+        with:
+          token: ${{ secrets.PUSHOVER_TOKEN }}
+          user: ${{ secrets.PUSHOVER_USER }}
+          message: Nightly build failed
+          priority: 1
+```
+
+## Healthchecks.io
+
+| Action | What it does |
+|---|---|
+| `vitek-dev/ci/healthchecks/start` | Pings `<url>/start`, so Healthchecks.io measures how long the run takes |
+| `vitek-dev/ci/healthchecks/stop` | Pings success or `/fail` depending on the job status |
+| `vitek-dev/ci/healthchecks/success` | Pings `<url>` (success) |
+| `vitek-dev/ci/healthchecks/fail` | Pings `<url>/fail` |
+
+Each takes `url`, the check's ping URL such as `https://hc-ping.com/<uuid>`
+(a self-hosted instance works too); store it as a secret. Every ping sends the
+workflow run link as its body, so it shows up in the check's event log. A ping
+that fails (for example an unknown check) fails the step.
+
+`stop` reports success only when the job status is `success`; `failure` and
+`cancelled` are reported as failures. It reads `job.status` unless you pass a
+`status` input. Run it with `if: always()` so it also runs after a failed step.
+
+```yaml
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: vitek-dev/ci/healthchecks/start@v1
+        with:
+          url: ${{ secrets.HEALTHCHECK_URL }}
+      - run: ./backup.sh
+      - uses: vitek-dev/ci/healthchecks/stop@v1
+        if: always()
+        with:
+          url: ${{ secrets.HEALTHCHECK_URL }}
+```
+
+Use `success` and `fail` instead of `stop` to report each outcome yourself,
+e.g. `fail` with `if: failure()`.
+
 ## Versioning
 
 Pin to the major tag `@v1`; it moves forward with backward-compatible changes.

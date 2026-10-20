@@ -1,0 +1,61 @@
+name: "pushover(notify): Send notification"
+description: Send a push notification through the Pushover API
+inputs:
+  token:
+    description: Pushover application API token. Pass it from a secret.
+    required: true
+  user:
+    description: Pushover user or group key to notify. Pass it from a secret.
+    required: true
+  message:
+    description: Notification body.
+    required: true
+  title:
+    description: Notification title.
+    required: false
+    default: ${{ github.repository }}
+  url:
+    description: Link attached to the notification. Defaults to the workflow run.
+    required: false
+    default: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  url-title:
+    description: Text shown for the link instead of the URL itself.
+    required: false
+    default: ""
+  priority:
+    description: Priority from -2 (lowest) to 1 (high). Empty uses Pushover's default (0).
+    required: false
+    default: ""
+  sound:
+    description: Name of a Pushover sound to play instead of the user's default.
+    required: false
+    default: ""
+  device:
+    description: Device name to send to instead of all of the user's devices.
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - name: Send Pushover notification
+      run: |
+        args=(--form-string "token=$TOKEN" --form-string "user=$USER_KEY" --form-string "message=$MESSAGE")
+        [[ -n "$TITLE" ]] && args+=(--form-string "title=$TITLE")
+        [[ -n "$URL" ]] && args+=(--form-string "url=$URL")
+        [[ -n "$URL_TITLE" ]] && args+=(--form-string "url_title=$URL_TITLE")
+        [[ -n "$PRIORITY" ]] && args+=(--form-string "priority=$PRIORITY")
+        [[ -n "$SOUND" ]] && args+=(--form-string "sound=$SOUND")
+        [[ -n "$DEVICE" ]] && args+=(--form-string "device=$DEVICE")
+        curl -sS --fail-with-body -m 10 --retry 3 "${args[@]}" https://api.pushover.net/1/messages.json
+        echo
+      shell: bash
+      env:
+        TOKEN: ${{ inputs.token }}
+        USER_KEY: ${{ inputs.user }}
+        MESSAGE: ${{ inputs.message }}
+        TITLE: ${{ inputs.title }}
+        URL: ${{ inputs.url }}
+        URL_TITLE: ${{ inputs.url-title }}
+        PRIORITY: ${{ inputs.priority }}
+        SOUND: ${{ inputs.sound }}
+        DEVICE: ${{ inputs.device }}

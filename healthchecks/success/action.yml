@@ -1,0 +1,15 @@
+name: "healthchecks(monitor): Success"
+description: Signal Healthchecks.io that the job succeeded
+inputs:
+  url:
+    description: Ping URL of the check, e.g. https://hc-ping.com/<uuid> (or your self-hosted instance). Pass it from a secret.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Ping Healthchecks.io
+      run: curl -sS --fail-with-body -m 10 --retry 5 --data-raw "$RUN_URL" "${URL%/}"
+      shell: bash
+      env:
+        URL: ${{ inputs.url }}
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
