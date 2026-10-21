@@ -2,12 +2,17 @@
 
 | Action | What it does |
 |---|---|
-| `vitek-dev/ci/pushover/deploy/success` | Notifies that the deploy succeeded: `🟢 <repo> deployed (<branch>)` |
-| `vitek-dev/ci/pushover/deploy/failed` | Notifies, with high priority, that the build or deploy failed: `🔴 <repo> deploy FAILED (<branch>)` |
+| `vitek-dev/ci/pushover/deploy/success` | Notifies that the deploy succeeded: `🟢 <name> deployed (<branch>)` |
+| `vitek-dev/ci/pushover/deploy/failed` | Notifies, with high priority, that the build or deploy failed: `🔴 <name> deploy FAILED (<branch>)` |
 
-Each takes `api-key` (the Pushover application API token) and `user-key` (the
-user or group key); pass both from secrets. The message names the repository,
-branch and short commit SHA, and links to the workflow run.
+| Input | Default | |
+|---|---|---|
+| `api-key` | required | Pushover application API token; pass it from a secret |
+| `user-key` | required | Pushover user or group key; pass it from a secret |
+| `name` | `github.repository` | What was deployed; set it to tell apart projects deployed from one monorepo |
+
+The message names `name`, the branch and the short commit SHA, and links to
+the workflow run.
 
 A failed notification fails the step; add `continue-on-error: true` if it
 should not fail the job.
